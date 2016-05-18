@@ -1,0 +1,28 @@
+---
+- name: Install libraries for LDAP Client
+  yum: state=present name={{ item }}
+  with_items:
+    - openldap-clients
+    - nss-pam-ldapd
+
+- name: Change nsswitch conf
+  replace: >
+    dest=/etc/nsswitch.conf
+    regexp='^passwd:.*$'
+    replace='passwd:     files sss ldap'
+    backup=yes
+
+- name: Change nsswitch conf
+  replace: >
+    dest=/etc/nsswitch.conf
+    regexp='^shadow:.*$'
+    replace='shadow:     files sss ldap'
+
+- name: Change nsswitch conf
+  replace: >
+    dest=/etc/nsswitch.conf
+    regexp='^group:.*$'
+    replace='group:      files sss ldap'
+
+- name: Authconfig for ldap auth
+  shell: authconfig --enableldap --enableldapauth --ldapserver=192.168.33.2 --ldapbasedn="dc=jogoj,dc=com" --enablemkhomedir --update
